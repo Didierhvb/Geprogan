@@ -23,16 +23,12 @@
         <span v-if="errors.tipoIdentificacion" class="form-error">{{ errors.tipoIdentificacion }}</span>
       </label>
       <label>
-        <span class="form-label">ID usuario (opcional)</span>
-        <input v-model.number="createForm.idUsuario" type="number" min="1" class="form-control" />
-      </label>
-      <label>
         <span class="form-label">Rol</span>
         <select v-model.number="createForm.rol" class="select-control" required>
           <option value="">Selecciona</option>
-          <option value="1">Administrador</option>
-          <option value="2">Operador</option>
-          <option value="3">Invitado</option>
+          <option v-for="rol in roles" :key="rol.value" :value="rol.value">
+            {{ rol.label }}
+          </option>
         </select>
         <span v-if="errors.rol" class="form-error">{{ errors.rol }}</span>
       </label>
@@ -126,13 +122,13 @@ const { token } = useAuth();
 const { pushToast } = useToasts();
 
 const usuarios = ref([]);
+const roles = ref([]);
 const loading = ref(true);
 const saving = ref(false);
 const showPassword = ref(false);
 
 const createForm = reactive({
   tipoIdentificacion: '',
-  idUsuario: null,
   rol: '',
   nombre: '',
   apellido: '',
@@ -177,6 +173,18 @@ async function loadUsuarios() {
   }
 }
 
+async function loadRoles() {
+  try {
+    const list = await usuarioApi.roles(token.value);
+    roles.value = (list || []).map(r => ({
+      value: r.id ?? r.idrol ?? r.Idrol,
+      label: r.nombre ?? r.nombreRol ?? r.NombreRol ?? ''
+    }));
+  } catch (error) {
+    pushToast(error.message || 'No se pudo cargar roles', 'error');
+  }
+}
+
 function validate() {
   errors.tipoIdentificacion = createForm.tipoIdentificacion ? '' : 'Selecciona un tipo';
   errors.rol = createForm.rol ? '' : 'Selecciona rol';
@@ -205,9 +213,7 @@ async function handleCreate() {
       Contrasena: createForm.contrasena,
       UrlImageUr: ''
     };
-    if (createForm.idUsuario) {
-      dto.Idusuario = Number(createForm.idUsuario);
-    }
+    // NO establecer Idusuario - es auto-increment en la DB
     await usuarioApi.create(dto, token.value);
     pushToast('Usuario creado', 'success');
     resetForm();
@@ -221,7 +227,6 @@ async function handleCreate() {
 
 function resetForm() {
   createForm.tipoIdentificacion = '';
-  createForm.idUsuario = null;
   createForm.rol = '';
   createForm.nombre = '';
   createForm.apellido = '';
@@ -244,8 +249,11 @@ async function deleteUsuario(user) {
   }
 }
 
-onMounted(() => {
-  loadUsuarios();
+onMounted(async () => {
+  await Promise.all([
+    loadUsuarios(),
+    loadRoles()
+  ]);
 });
 </script>
 

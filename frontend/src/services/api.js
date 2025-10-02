@@ -132,6 +132,9 @@ export const usuarioApi = {
   list(token) {
     return apiFetch('/api/usuarios', { auth: true, headers: token ? { Authorization: `Bearer ${token}` } : undefined });
   },
+  roles(token) {
+    return apiFetch('/api/usuarios/roles', { auth: true, headers: token ? { Authorization: `Bearer ${token}` } : undefined });
+  },
   create(dto, token) {
     return apiFetch('/api/usuarios', { method: 'POST', auth: true, body: dto, headers: token ? { Authorization: `Bearer ${token}` } : undefined });
   },

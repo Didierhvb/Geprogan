@@ -23,16 +23,6 @@
         <span v-if="errors.hectareas" class="form-error">{{ errors.hectareas }}</span>
       </label>
       <label>
-        <span class="form-label">Propietario</span>
-        <select v-model.number="createForm.propietario" class="select-control" required>
-          <option value="">Selecciona</option>
-          <option v-for="user in propietarios" :key="user.id" :value="user.id">
-            {{ user.id }} - {{ user.nombre }}
-          </option>
-        </select>
-        <span v-if="errors.propietario" class="form-error">{{ errors.propietario }}</span>
-      </label>
-      <label>
         <span class="form-label">Latitud</span>
         <input v-model.number="createForm.latitud" type="number" step="0.000001" class="form-control" />
       </label>
@@ -112,15 +102,6 @@
             <input v-model.number="editState.form.hectareas" type="number" step="0.01" min="0" class="form-control" required />
           </label>
           <label>
-            <span class="form-label">Propietario</span>
-            <select v-model.number="editState.form.propietario" class="select-control" required>
-              <option value="">Selecciona</option>
-              <option v-for="user in propietarios" :key="user.id" :value="user.id">
-                {{ user.id }} - {{ user.nombre }}
-              </option>
-            </select>
-          </label>
-          <label>
             <span class="form-label">Latitud</span>
             <input v-model.number="editState.form.latitud" type="number" step="0.000001" class="form-control" />
           </label>
@@ -156,7 +137,6 @@ const createForm = reactive({
   nombre: '',
   ubicacion: '',
   hectareas: null,
-  propietario: '',
   latitud: null,
   longitud: null
 });
@@ -164,8 +144,7 @@ const createForm = reactive({
 const errors = reactive({
   nombre: '',
   ubicacion: '',
-  hectareas: '',
-  propietario: ''
+  hectareas: ''
 });
 
 const editState = reactive({
@@ -175,7 +154,6 @@ const editState = reactive({
     nombre: '',
     ubicacion: '',
     hectareas: null,
-    propietario: '',
     latitud: null,
     longitud: null
   }
@@ -194,24 +172,11 @@ function normalizeFinca(raw) {
   };
 }
 
-function normalizePropietario(raw) {
-  return {
-    id: raw.id ?? raw.idusuario ?? raw.Idusuario ?? null,
-    nombre: [raw.nombre, raw.nombreUr, raw.NombreUr, raw.apellido, raw.apellidoUr, raw.ApellidoUr]
-      .filter(Boolean)
-      .join(' ').trim()
-  };
-}
-
 async function loadData() {
   loading.value = true;
   try {
     const authToken = token.value;
-    const [users, list] = await Promise.all([
-      fincaApi.propietarios(authToken),
-      fincaApi.list(authToken)
-    ]);
-    propietarios.value = users.map(normalizePropietario).filter((u) => u.id);
+    const list = await fincaApi.list(authToken);
     fincas.value = list.map(normalizeFinca).filter((f) => f.id);
   } catch (error) {
     pushToast(error.message || 'No se pudo cargar la informacion', 'error');
@@ -224,8 +189,7 @@ function validateCreate() {
   errors.nombre = createForm.nombre ? '' : 'Ingresa el nombre';
   errors.ubicacion = createForm.ubicacion ? '' : 'Ingresa la ubicacion';
   errors.hectareas = createForm.hectareas && createForm.hectareas > 0 ? '' : 'Ingresa hectareas validas';
-  errors.propietario = createForm.propietario ? '' : 'Selecciona propietario';
-  return !errors.nombre && !errors.ubicacion && !errors.hectareas && !errors.propietario;
+  return !errors.nombre && !errors.ubicacion && !errors.hectareas;
 }
 
 async function handleCreate() {
@@ -238,7 +202,6 @@ async function handleCreate() {
       nombreFinca: createForm.nombre,
       ubicacion: createForm.ubicacion,
       hectareas: Number(createForm.hectareas),
-      propietario: Number(createForm.propietario),
       latitud: createForm.latitud ?? null,
       longitud: createForm.longitud ?? null
     };
@@ -257,7 +220,6 @@ function resetCreate() {
   createForm.nombre = '';
   createForm.ubicacion = '';
   createForm.hectareas = null;
-  createForm.propietario = '';
   createForm.latitud = null;
   createForm.longitud = null;
 }
@@ -268,7 +230,6 @@ function openEdit(finca) {
   editState.form.nombre = finca.nombre;
   editState.form.ubicacion = finca.ubicacion;
   editState.form.hectareas = finca.hectareas;
-  editState.form.propietario = finca.propietario;
   editState.form.latitud = finca.latitud;
   editState.form.longitud = finca.longitud;
 }
@@ -285,7 +246,6 @@ async function handleUpdate() {
       nombreFinca: editState.form.nombre,
       ubicacion: editState.form.ubicacion,
       hectareas: Number(editState.form.hectareas || 0),
-      propietario: Number(editState.form.propietario),
       latitud: editState.form.latitud ?? null,
       longitud: editState.form.longitud ?? null
     };

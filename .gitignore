@@ -1,0 +1,154 @@
+# ========================
+# .NET / Visual Studio
+# ========================
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio IDE files
+*.vsidx
+.futdcache.v2
+DocumentLayout.json
+DocumentLayout.backup.json
+*.metadata.v9.bin
+*.projects.v9.bin
+*.strings.v9.bin
+
+# Build artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+*.ilk
+*.log
+*.tlog
+*.lastbuildstate
+*.iobj
+*.ipdb
+*.AssemblyInfo.cs
+*.AssemblyInfoInputs.cache
+*.GeneratedMSBuildEditorConfig.editorconfig
+*.assets.cache
+*.csproj.AssemblyReference.cache
+*.csproj.CoreCompileInputs.cache
+*.csproj.FileListAbsolute.txt
+*.genruntimeconfig.cache
+*.sourcelink.json
+apphost.exe
+ref/
+refint/
+*.dswa.cache.json
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nuget.dgspec.json
+*.nuget.g.props
+project.assets.json
+project.nuget.cache
+
+# Entity Framework
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+
+# ========================
+# Node.js / Frontend
+# ========================
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Production build (frontend builds to backend/wwwroot)
+backend/wwwroot/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Vite
+dist/
+dist-ssr/
+*.local
+.vite/
+**/node_modules/.vite/
+**/.vue-global-types/
+*.map
+
+# ========================
+# Database
+# ========================
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ========================
+# ML.NET
+# ========================
+*.zip
+MLModels/
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ========================
+# Backup files
+# ========================
+*.bak
+*.backup
+*.tmp
+*~

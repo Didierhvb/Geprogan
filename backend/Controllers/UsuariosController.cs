@@ -23,6 +23,16 @@ namespace GeproganAPP.Controllers
             return Ok(usuarios);
         }
 
+        // GET: api/usuarios/roles
+        [HttpGet("roles")]
+        public IActionResult GetRoles()
+        {
+            var roles = _context.Rols
+                .Select(r => new { id = r.Idrol, nombre = r.NombreRol })
+                .ToList();
+            return Ok(roles);
+        }
+
         // GET: api/usuarios/5
         [HttpGet("{id}")]
         public IActionResult GetUsuario(int id)
@@ -49,17 +59,19 @@ namespace GeproganAPP.Controllers
         {
             if (string.IsNullOrWhiteSpace(dto.EmailUr) || string.IsNullOrWhiteSpace(dto.Contrasena))
                 return BadRequest(new { message = "Email y contraseña son requeridos" });
+            if (string.IsNullOrWhiteSpace(dto.NombreUr) || string.IsNullOrWhiteSpace(dto.ApellidoUr))
+                return BadRequest(new { message = "Nombre y apellido son requeridos" });
             if (_context.Usuarios.Any(u => u.EmailUr == dto.EmailUr))
                 return Conflict(new { message = "Email ya registrado" });
 
             var u = new GeproganAPP.Models.Usuario
             {
-                IdrolUr = dto.IdrolUr,
-                TipoIdentificacion = dto.TipoIdentificacion,
+                IdrolUr = dto.IdrolUr ?? 3, // Rol invitado por defecto si no se especifica
+                TipoIdentificacion = dto.TipoIdentificacion ?? "CC",
                 NombreUr = dto.NombreUr,
                 ApellidoUr = dto.ApellidoUr,
                 EmailUr = dto.EmailUr,
-                TelefonoUr = dto.TelefonoUr,
+                TelefonoUr = dto.TelefonoUr ?? string.Empty,
                 Contrasena = dto.Contrasena,
                 UrlImageUr = dto.UrlImageUr ?? string.Empty
             };

@@ -3,6 +3,7 @@ using GeproganAPP.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace GeproganAPP.Controllers
 {
@@ -14,11 +15,22 @@ namespace GeproganAPP.Controllers
         private readonly GeproGanContext _context;
         public FincasController(GeproGanContext context) { _context = context; }
 
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(userIdClaim, out var userId) ? userId : 0;
+        }
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+                return Unauthorized(new { message = "Usuario no identificado" });
+
             var fincas = await _context.Fincas
                 .Include(f => f.PropietarioNavigation)
+                .Where(f => f.Propietario == userId)
                 .Select(f => new
                 {
                     idfinca = f.Idfinca,
@@ -38,7 +50,6 @@ namespace GeproganAPP.Controllers
             string NombreFinca,
             string Ubicacion,
             decimal Hectareas,
-            int Propietario,
             decimal? Latitud,
             decimal? Longitud
         );
@@ -46,6 +57,10 @@ namespace GeproganAPP.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] FincaCreateDto dto)
         {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+                return Unauthorized(new { message = "Usuario no identificado" });
+
             if (string.IsNullOrWhiteSpace(dto.NombreFinca) || string.IsNullOrWhiteSpace(dto.Ubicacion))
             {
                 return BadRequest(new { message = "NombreFinca y Ubicacion son requeridos" });
@@ -54,17 +69,14 @@ namespace GeproganAPP.Controllers
             {
                 return BadRequest(new { message = "Hectareas debe ser mayor a 0" });
             }
-            if (dto.Propietario <= 0)
-            {
-                return BadRequest(new { message = "Propietario inválido" });
-            }
 
+            // La finca se crea automáticamente para el usuario autenticado
             var finca = new Finca
             {
                 NombreFinca = dto.NombreFinca,
                 Ubicacion = dto.Ubicacion,
                 Hectareas = dto.Hectareas,
-                Propietario = dto.Propietario,
+                Propietario = userId, // Siempre el usuario autenticado
                 Latitud = dto.Latitud,
                 Longitud = dto.Longitud
             };
@@ -90,7 +102,6 @@ namespace GeproganAPP.Controllers
             string NombreFinca,
             string Ubicacion,
             decimal Hectareas,
-            int Propietario,
             decimal? Latitud,
             decimal? Longitud
         );
@@ -98,8 +109,16 @@ namespace GeproganAPP.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] FincaUpdateDto dto)
         {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+                return Unauthorized(new { message = "Usuario no identificado" });
+
             var finca = await _context.Fincas.FindAsync(id);
             if (finca == null) return NotFound(new { message = "Finca no encontrada" });
+
+            // Verificar que la finca pertenece al usuario autenticado
+            if (finca.Propietario != userId)
+                return Forbid();
 
             if (string.IsNullOrWhiteSpace(dto.NombreFinca) || string.IsNullOrWhiteSpace(dto.Ubicacion))
             {
@@ -109,15 +128,11 @@ namespace GeproganAPP.Controllers
             {
                 return BadRequest(new { message = "Hectareas debe ser mayor a 0" });
             }
-            if (dto.Propietario <= 0)
-            {
-                return BadRequest(new { message = "Propietario inválido" });
-            }
 
             finca.NombreFinca = dto.NombreFinca;
             finca.Ubicacion = dto.Ubicacion;
             finca.Hectareas = dto.Hectareas;
-            finca.Propietario = dto.Propietario;
+            // No permitir cambiar el propietario
             finca.Latitud = dto.Latitud;
             finca.Longitud = dto.Longitud;
 
@@ -140,8 +155,16 @@ namespace GeproganAPP.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+                return Unauthorized(new { message = "Usuario no identificado" });
+
             var finca = await _context.Fincas.FindAsync(id);
             if (finca == null) return NotFound(new { message = "Finca no encontrada" });
+
+            // Verificar que la finca pertenece al usuario autenticado
+            if (finca.Propietario != userId)
+                return Forbid();
 
             _context.Fincas.Remove(finca);
             await _context.SaveChangesAsync();

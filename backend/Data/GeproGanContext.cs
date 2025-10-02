@@ -144,8 +144,8 @@ public partial class GeproGanContext : DbContext
 
             entity.Property(e => e.Idfinca).HasColumnName("IDFinca");
             entity.Property(e => e.Hectareas).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Latitud).HasColumnType("decimal(10, 8)");
-            entity.Property(e => e.Longitud).HasColumnType("decimal(11, 8)");
+            entity.Property(e => e.Latitud).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.Longitud).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.NombreFinca).HasMaxLength(100);
             entity.Property(e => e.Ubicacion).HasMaxLength(255);
 
@@ -495,7 +495,7 @@ public partial class GeproGanContext : DbContext
             entity.HasIndex(e => e.EmailUr, "UQ__Usuario__7ED9BB61B3F130FA").IsUnique();
 
             entity.Property(e => e.Idusuario)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("IDUsuario");
             entity.Property(e => e.ApellidoUr).HasMaxLength(50);
             entity.Property(e => e.Contrasena).HasMaxLength(255);
